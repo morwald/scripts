@@ -1,0 +1,24 @@
+#!/usr/bin/sh
+
+# adapted from
+# https://gist.github.com/Blaradox/030f06d165a82583ae817ee954438f2e
+
+function send_notification {
+	brightness=$(brightnessctl | awk '/Current/ \
+		{ print substr($4,2,length($4)-3) }')
+    
+	dunstify -r 2222 -u low "" -h int:value:"$brightness" 
+}
+
+case $1 in
+    up)
+        # increase the backlight by 5%
+        brightnessctl s +5%
+        send_notification
+        ;;
+    down)
+        # decrease the backlight by 5%
+        brightnessctl s 5%-
+        send_notification
+        ;;
+esac

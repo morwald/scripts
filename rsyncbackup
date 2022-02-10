@@ -1,0 +1,3 @@
+#!/bin/sh
+
+sudo rsync -r --info=progress2 --delete /$HOME/ /media/MORITZ_HDD/backup/

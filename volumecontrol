@@ -1,0 +1,54 @@
+#!/usr/bin/sh
+
+# adapted from
+# https://gist.github.com/Blaradox/030f06d165a82583ae817ee954438f2e#file-volumecontrol-sh
+
+function get_volume {
+	pactl get-sink-volume @DEFAULT_SINK@ | awk '{ print substr( $5, 1, length($5)-1 ) }'
+}
+
+function is_muted {
+	mute = $(pactl list sinks | awk 'f;/RUNNING/{f=1}' | awk '/Mute:/ { print $2 }')
+	if [ -z "$mute" ]; then
+		pactl list sinks | awk '/Mute:/ { print $2 }'
+	else
+		$mute
+	fi
+}
+
+function volume_notification {
+	if [ "$(is_muted)" = "yes" ] ; then
+		dunstify -r 1111 -u low "" -h int:value:"0"
+	else
+		volume=$(get_volume)
+		if [ "$volume" -ge 65 ]; then
+			icon=$(echo " ")
+		elif [ "$volume" -ge 40 ]; then
+			icon=$(echo "")
+		elif [ "$volume" -ge 0 ]; then
+			icon=$(echo "")
+		fi
+		dunstify -r 1111 -u low "$icon" -h int:value:"$volume"
+	fi
+}
+
+case $1 in
+	up)
+		if [ "$(is_muted)" = "yes" ] ; then
+			pactl set-sink-mute @DEFAULT_SINK@ toggle
+		fi
+		pactl set-sink-volume @DEFAULT_SINK@ +2000
+		volume_notification
+		;;
+	down)
+		if [ "$(is_muted)" = "yes" ] ; then
+			pactl set-sink-mute @DEFAULT_SINK@ toggle
+		fi
+		pactl set-sink-volume @DEFAULT_SINK@ -2000
+		volume_notification
+		;;
+	mute)
+		pactl set-sink-mute @DEFAULT_SINK@ toggle
+		volume_notification
+		;;
+esac

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+bd_addr=$(echo "EC:81:93:16:DA:37")
+
+bluetoothctl -- power on
+sleep 1
+bluetoothctl -- trust $bd_addr
+bluetoothctl -- connect $bd_addr

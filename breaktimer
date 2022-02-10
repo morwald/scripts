@@ -1,0 +1,9 @@
+#!/usr/bin/sh
+
+# send a message every 45 minutes to take a break
+while true;
+do	
+	sleep 2700
+        dunstify -u critical "worked 45 minutes"
+	sleep 300
+done

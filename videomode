@@ -1,0 +1,7 @@
+#!/bin/sh
+
+while true; do
+	sleep 60
+	# just simulate a keypress
+	xdotool key F12
+done

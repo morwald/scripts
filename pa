@@ -1,0 +1,45 @@
+#/bin/sh
+
+# adapted from
+# www.github.com/gotbletu/shownotes/blob/master/pulseaudio_change_playback_output.md
+
+list() { pacmd list-sinks | awk '/index/ || /name:/' ;}
+
+change() {
+	# list all apps in playback tab (ex: cmus, mplayer, vlc)
+	inputs=($(pacmd list-sinks-inputs | awk '/index/ {print APP}')) 
+	# set the default output device
+	pacmd set-default-sink $2
+	# apply the changes to all running apps to use the new output device
+	for i in ${inputs[*]}; do pactl move-sink-input $i $2; done
+}
+
+playbacklist() { 
+	# list individual apps
+	echo "==============="
+	echo "Running Apps"
+	pacmd list-sink-inputs | awk '/index/ || /application.name /'
+
+	# list all sound device
+	echo "==============="
+	echo "Sound Devices"
+	pacmd list-sinks | awk '/index/ || /name:/'
+}
+
+playbackset() { 
+	# set the default output device
+	pactl set-default-sink "$2" &> /dev/null
+	# apply changes to one running app to use the new output device
+	pactl move-sink-input "$2" "$3" &> /dev/null
+}
+
+case $1 in
+    list)
+		list;;
+	change)
+		change $*;;
+	playbacklist)
+		playbacklist $*;;
+	playbackset)
+		playbackset $*;;
+esac

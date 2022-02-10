@@ -1,0 +1,17 @@
+#!/bin/sh
+
+function powermenu {
+	options="shutdown\nlogout\nsleep\nrestart"
+	selected=$(echo -e $options | dmenu)
+	if [[ $selected = "shutdown" ]]; then
+		poweroff
+	elif [[ $selected = "logout" ]]; then
+		killall dwm
+	elif [[ $selected = "sleep" ]]; then
+		slock & systemctl suspend
+	elif [[ $selected = "restart" ]]; then
+		reboot
+	fi
+}
+
+powermenu

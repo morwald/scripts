@@ -1,0 +1,141 @@
+# run with sudo priviliges
+# and specify user
+USER="moritz"
+HOME="/home/${USER}"
+
+# base packages which have to be installed and configured
+#sudo
+#networkmanager
+#neovim
+#git
+
+# pacman installs
+sudo pacman -S --noconfirm \
+ttf-fira-code \
+ttf-font-awesome \
+ttf-liberation \
+base-devel \
+zsh \
+zsh-autosuggestions \
+zsh-completions \
+zsh-syntax-highlighting \
+xorg-server \
+xorg-xrandr \
+xorg-xinit \
+xorg-xsetroot \
+xautolock \
+xdotool \
+xbindkeys \
+xclip \
+scrot \
+rsync \
+htop \
+tmux \
+pulseaudio \
+pulseaudio-alsa \
+pulseaudio-bluetooth \
+bluez \
+bluez-utils \
+autorandr \
+doxygen \
+dunst \
+feh \
+gnome-icon-theme \
+gtk-engine-murrine \
+pass \
+mpc \
+mpd \
+mpv \
+ncmpcpp \
+neomutt \
+isync \
+qutebrowser \
+pdfjs \
+python-adblock \
+python-tldextract \
+sxiv \
+udiskie \
+unclutter \
+youtube-dl \
+zathura \
+zathura-pdf-mupdf \
+openconnect \
+lynx \
+nodejs \
+python \
+fzf \
+man \
+openssh \
+zip \
+unzip \
+picard 
+
+# make zsh shell default
+sudo -u $USER chsh -s /bin/zsh
+rm $HOME/.bashrc
+rm $HOME/.bash_logout
+rm $HOME/.bash_profile
+
+# yay installation
+git clone https://aur.archlinux.org/yay-bin.git $HOME/yay-bin
+cd $HOME/yay-bin
+sudo -u $USER makepkg -si
+sudo rm -r $HOME/yay-bin
+# arch user repositories installs
+yay -S \
+pacman-contrib \
+zoom \
+ltunify \
+neovim-remote \
+gtkrc-reload \
+gtk-theme-numix-solarized \
+qt5-styleplugins \
+ttf-andika \
+soundcloud-dl-git \
+bandcamp-dl-git
+
+# gtk icons for solarized
+curl -L -o icons.tar.gz https://github.com/rtlewis88/rtl88-Themes/archive/refs/tags/1.0.tar.gz
+tar -xf $HOME/icons.tar.gz
+cd $HOME/rtl88-Themes-1.0
+tar -xf Solarized-Colors-gtk-theme-iconpack_1.0.tar.gz
+sudo cp -r Solarized-Blue-gtk-theme-iconpack /usr/share/icons
+rm -r $HOME/icons.tar.gz $HOME/rtl88-Themes-1.0
+
+# suckless software installs
+mkdir $HOME/.local
+mkdir $HOME/.local/src
+cd $HOME/.local/src/
+# dwm
+git clone https://github.com/morwald/dwm
+cd dwm
+sudo make clean install
+cd ..
+# st
+git clone https://github.com/morwald/st
+cd st
+sudo make clean install
+cd ..
+# dmenu
+git clone https://github.com/morwald/dmenu
+cd dmenu
+sudo make clean install
+cd ..
+# slock
+sudo git clone https://github.com/morwald/slock
+cd slock
+sudo make clean install
+cd
+
+# dotfiles installs
+git clone --bare --recursive https://github.com/morwald/dotfiles.git "$HOME/.dotfiles"
+/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME checkout
+/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME config --local status.showUntrackedFiles no
+
+# plugin installs
+# neovim vim plug
+sh -c 'curl -fLo "$HOME/.local/share"/nvim/site/autoload/plug.vim --create-dirs \
+       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+# tmux tpm
+mkdir $HOME/.config/tmux/plugins
+git clone https://github.com/tmux-plugins/tpm $HOME/.config/tmux/plugins/tpm

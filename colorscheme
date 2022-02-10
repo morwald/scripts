@@ -1,0 +1,127 @@
+#!/bin/sh
+
+XRESOURCES="${HOME}/.config/Xresources" 
+NEOVIM="${HOME}/.config/nvim" 
+QUTEBROWSER="${HOME}/.config/qutebrowser" 
+ZATHURA="${HOME}/.config/zathura" 
+DUNST="${HOME}/.config/dunst" 
+GTK3="${HOME}/.config/gtk-3.0"
+SCRIPTS="${HOME}/.scripts"
+
+function colorscheme {
+	options="solarized_light\nsolarized_dark"
+	selected=$(echo -e $options | dmenu)
+
+	if [[ ! -z $selected ]]; then
+		# solarized light
+		if [[ $selected = "solarized_light" ]]; then
+			cp $XRESOURCES/solarized_light $HOME/.Xresources
+			xrdb merge $HOME/.Xresources
+			# vim settings
+			cat > $NEOVIM/colorscheme.vim<< EOF
+" current colorscheme
+set background=light
+colorscheme solarized8
+let g:lightline.colorscheme = 'solarized'
+execute 'source' globpath(&rtp, 'autoload/lightline/colorscheme/solarized.vim')
+highlight clear LineNr
+EOF
+			# qutebrowser settings
+			cp $QUTEBROWSER/config_settings.py $QUTEBROWSER/config.py
+			cat >> $QUTEBROWSER/config.py<< EOF
+# css stylesheets
+c.content.user_stylesheets = ['$HOME/.config/qutebrowser/css/solarized-light-all-sites.css'] 
+config.bind('<Ctrl-R>', 'config-cycle content.user_stylesheets "$HOME/.config/qutebrowser/css/solarized-light-all-sites.css" ""')
+EOF
+			# gtk2 settings
+			cat > $HOME/.gtkrc-2.0<< EOF
+gtk-theme-name="NumixSolarizedLightBlue"
+gtk-icon-theme-name="Solarized-Blue-gtk-theme-iconpack"
+gtk-font-name="Andika 11"
+EOF
+			# gtk3 settings
+			cat > $GTK3/settings.ini<< EOF
+[Settings]
+gtk-icon-theme-name=Solarized-Blue-gtk-theme-iconpack
+gtk-theme-name=NumixSolarizedLightBlue
+gtk-font-name=Andika 11
+EOF
+			# wallpaper
+			cp $XRESOURCES/bg_solarized_light.jpeg $XRESOURCES/background.jpeg
+			$SCRIPTS/fehbg
+		fi
+
+		# solarized dark
+		if [[ $selected = "solarized_dark" ]]; then
+			cp $XRESOURCES/solarized_dark $HOME/.Xresources
+			xrdb merge $HOME/.Xresources
+			# vim settings
+			cat > $NEOVIM/colorscheme.vim<< EOF
+" current colorscheme
+set background=dark
+colorscheme solarized8
+execute 'source' globpath(&rtp, 'autoload/lightline/colorscheme/solarized.vim')
+let g:lightline.colorscheme = 'solarized'
+highlight clear LineNr
+EOF
+			# qutebrowser settings
+			cp $QUTEBROWSER/config_settings.py $QUTEBROWSER/config.py
+			cat >> $QUTEBROWSER/config.py<< EOF
+# css stylesheets
+c.content.user_stylesheets = ['$HOME/.config/qutebrowser/css/solarized-light-all-sites.css'] 
+config.bind('<Ctrl-R>', 'config-cycle content.user_stylesheets "~/.config/qutebrowser/css/solarized-dark-all-sites.css" "~/.config/qutebrowser/css/solarized-light-all-sites.css" ""')
+EOF
+			# gtk2 settings
+			cat > $HOME/.gtkrc-2.0<< EOF
+gtk-theme-name="NumixSolarizedDarkBlue"
+gtk-icon-theme-name="Solarized-Blue-gtk-theme-iconpack"
+gtk-font-name="Andika 11"
+EOF
+			# gtk3 settings
+			cat > $GTK3/settings.ini<< EOF
+[Settings]
+gtk-icon-theme-name=Solarized-Blue-gtk-theme-iconpack
+gtk-theme-name=NumixSolarizedLightBlue
+gtk-font-name=Andika 11
+EOF
+			# wallpaper
+			cp $XRESOURCES/bg_solarized_dark.jpeg $XRESOURCES/background.jpeg
+			$SCRIPTS/fehbg
+		fi
+	fi
+	# return string
+	echo $options
+}
+
+# run colorscheme specific setup
+if [[ ! -z $(colorscheme) ]]; then
+	# st
+	kill -USR1 $(pidof st)
+	# dwm
+	xdotool key Super_L+Shift+Tab
+	# gtk
+	gtkrc-reload
+	# neovim
+	for path in $(nvr --nostart --serverlist)
+	do
+  	  nvr --nostart --servername $path -cc 'so ~/.config/nvim/init.vim'
+	done
+	# qutebrowser
+	if pgrep -x "qutebrowser" >/dev/null
+	then
+		qutebrowser :config-source
+		qutebrowser :reload
+	fi
+	# zathura
+	$SCRIPTS/genzathurarc > $ZATHURA/zathurarc
+	if pgrep -x "zathura" >/dev/null
+	then
+		killall zathura
+		zathura --fork
+	fi
+	# dunst
+	$SCRIPTS/gendunstrc > $DUNST/dunstrc
+	killall dunst
+	dunst &
+
+fi

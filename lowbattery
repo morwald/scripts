@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# check battery 
+while true; do
+	charge=$(cat /sys/class/power_supply/BAT0/capacity)
+	status=$(cat /sys/class/power_supply/BAT0/status)
+	if [ "$status" = "Discharging" ]; then
+		if [ $charge -le 20 ]; then
+			dunstify -r 0000 -u critical "low battery: $charge%"
+		fi
+	fi
+	sleep 300
+done
