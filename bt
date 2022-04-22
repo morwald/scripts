@@ -1,0 +1,19 @@
+#!/bin/sh
+
+addr1=$(echo "EC:81:93:DE:32:BD")
+addr2=$(echo "EC:81:93:16:DA:37")
+
+case $1 in
+	1)
+	bluetoothctl -- power on
+	sleep 1
+	bluetoothctl -- trust $addr1
+	bluetoothctl -- connect $addr1
+	;;
+	2)
+	bluetoothctl -- power on
+	sleep 1
+	bluetoothctl -- trust $addr2
+	bluetoothctl -- connect $addr2
+	;;
+esac

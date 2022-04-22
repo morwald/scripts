@@ -11,7 +11,7 @@ Some scripts to handle basic tasks in my arch setup. Most scripts are bound to a
 | volumecontrol | control volume for pulseaudio |
 | pa | playback control for pulsaudio sinks and sources |
 | powermenu | dmenu script for power control |
-| boom | connect bluetooth speaker |
+| bt | connect bluetooth speaker |
 | breaktimer | simple timer to toggle notification for the coffee break |
 | rsyncbackup | backup on external hard drive |
 | colorscheme | change colorscheme on the fly for dwm, st and more |
